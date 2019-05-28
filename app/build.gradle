@@ -78,4 +78,5 @@ dependencies {
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.5.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.38.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-places-v7:0.8.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }

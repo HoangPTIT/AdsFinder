@@ -1,10 +1,12 @@
 package com.sun.adsfinder01.ui.login
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import com.google.gson.Gson
 import com.sun.adsfinder01.R
 import com.sun.adsfinder01.data.model.ApiResponse
 import com.sun.adsfinder01.data.model.NetworkStatus.ERROR
@@ -25,9 +27,21 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
     private val viewModel: LoginViewModel by viewModel()
 
+    private val sharedPrefs by lazy { getSharedPreferences(PREF_LOGIN, Context.MODE_PRIVATE) }
+
+    private val gson by lazy { Gson() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_login)
+
+        val user = getLoginState()
+        if (user != null) {
+            loginSuccess(user)
+            return
+        }
+
         initComponent()
 
         doObserve()
@@ -92,8 +106,22 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         showProgress(false)
         enableLogin(true)
         enableRegister(true)
+
         startActivity(MainActivity.getMainIntent(this, data))
+        saveLoginState(data)
     }
+
+    /**
+     * save login state
+     */
+    private fun saveLoginState(user: User?) {
+        sharedPrefs.edit().putString(PREF_USER, gson.toJson(user)).apply()
+    }
+
+    /**
+     * Check login
+     */
+    private fun getLoginState(): User? = gson.fromJson(sharedPrefs.getString(PREF_USER, ""), User::class.java)
 
     private fun notifyInputInvalid(msg: String) {
         showProgress(false)
@@ -119,5 +147,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun enableRegister(isDisable: Boolean) {
         buttonRegister?.isEnabled = isDisable
+    }
+
+    companion object {
+        private const val PREF_LOGIN = "PREF_LOGIN"
+        private const val PREF_USER = "PREF_USER"
     }
 }
